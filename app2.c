@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 LRESULT CALLBACK MainWndProc(HWND, UINT, WPARAM, LPARAM);
-static HWND CreateButton(HWND, LPCTSTR, int, int, int, int, HINSTANCE);
+static HWND CreateButton(HWND, LPCTSTR, int, int, int, int, int, HINSTANCE);
 
 static const int MainWindowWidth = 300;
 static const int MainWindowHeight = 400;
@@ -12,6 +12,18 @@ static const int ButtonHeight = 50;
 static const int ButtonGap = 5;
 
 static const int MainWindowMargin = 10;
+
+static const int ButtonZeroId = 1000;
+static const int ButtonOneId = 1001;
+static const int ButtonTwoId = 1002;
+static const int ButtonThreeId = 1003;
+static const int ButtonFourId = 1004;
+static const int ButtonFiveId = 1005;
+static const int ButtonSixId = 1006;
+static const int ButtonSevenId = 1007;
+static const int ButtonEigthId = 1008;
+static const int ButtonNineId = 1009;
+static const int ButtonDotId = 1010;
 
 int STDCALL WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpCmd, int nShow)
 {
@@ -82,6 +94,7 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lParam)
             // create number 1 to 9
             int iButtonNum = 9;
             int iButton = 0;
+            int iButtonId = ButtonNineId;
             int iOffsetX, iOffsetY = MainWindowMargin;
             for (int i = 0; i < 3; i++)
             {
@@ -89,19 +102,37 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lParam)
                 for (int j = 0; j < 3; j++)
                 {
                     char buttonName[2];
-                    sprintf(buttonName, "%d", iButtonNum);
-                    hWndButton[iButton] = CreateButton(hWnd, buttonName, iOffsetX, iOffsetY, ButtonWidth, ButtonHeight, ((LPCREATESTRUCT)lParam)->hInstance);
+                    sprintf(buttonName, "%d", iButtonNum--);
+                    hWndButton[iButton++] = CreateButton(hWnd,
+                            buttonName,
+                            iOffsetX, iOffsetY,
+                            ButtonWidth, ButtonHeight,
+                            iButtonId--, 
+                            ((LPCREATESTRUCT)lParam)->hInstance
+                    );
                     iOffsetX = iOffsetX + ButtonWidth + ButtonGap;
-                    iButtonNum--;
                 }
                 iOffsetY = iOffsetY + ButtonHeight + ButtonGap;
             }
 
             iOffsetX = MainWindowMargin;
-            CreateButton(hWnd, "0", iOffsetX, iOffsetY, ButtonWidth*2+ButtonGap, ButtonHeight, ((LPCREATESTRUCT)lParam)->hInstance);
+            CreateButton(hWnd,
+                    "0",
+                    iOffsetX, iOffsetY, 
+                    ButtonWidth*2+ButtonGap, ButtonHeight,
+                    ButtonZeroId,
+                    ((LPCREATESTRUCT)lParam)->hInstance
+            );
             
+            iButtonId++;
             iOffsetX = iOffsetX + ButtonWidth*2+ButtonGap + ButtonGap;
-            CreateButton(hWnd, ".", iOffsetX, iOffsetY, ButtonWidth, ButtonHeight, ((LPCREATESTRUCT)lParam)->hInstance);
+            CreateButton(hWnd,
+                    ".", 
+                    iOffsetX, iOffsetY, 
+                    ButtonWidth, ButtonHeight, 
+                    ButtonDotId,
+                    ((LPCREATESTRUCT)lParam)->hInstance
+            );
             /*
             hWndButton = CreateButton(hWnd, 10, 10, ((LPCREATESTRUCT)lParam)->hInstance);
             hWndButton = CreateWindow(
@@ -156,12 +187,18 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lParam)
 
         case WM_COMMAND:
         {
-            /*
-            if (LOWORD(wParam) == 1 && HIWORD(wParam) == BN_CLICKED && (HWND)lParam == hWndButton)
+            //if (LOWORD(wParam) == 1 && HIWORD(wParam) == BN_CLICKED && (HWND)lParam == hWndButton)
+            if (HIWORD(wParam) == BN_CLICKED)
             {
-                DestroyWindow(hWnd);
+                int iButtonId = LOWORD(wParam);
+                if (iButtonId >= ButtonZeroId && iButtonId <= ButtonDotId)
+                {
+                    char szMsg[2];
+                    sprintf(szMsg, "%d", iButtonId - ButtonZeroId);
+                    MessageBox(hWnd, szMsg, "Button", MB_OKCANCEL | MB_ICONINFORMATION);
+                }
+                //DestroyWindow(hWnd);
             }
-            */
             return 0;
         }
     }
@@ -169,7 +206,7 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lParam)
     return DefWindowProc(hWnd, nMsg, wParam, lParam);
 }
 
-static HWND CreateButton(HWND hWnd, LPCTSTR lpName, int iOffsetX, int iOffsetY, int iWidth, int iHeight, HINSTANCE hInstance)
+static HWND CreateButton(HWND hWnd, LPCTSTR lpName, int iOffsetX, int iOffsetY, int iWidth, int iHeight, int iButtonId, HINSTANCE hInstance)
 {
     HWND hWndButton = CreateWindow(
         "BUTTON",
@@ -180,7 +217,7 @@ static HWND CreateButton(HWND hWnd, LPCTSTR lpName, int iOffsetX, int iOffsetY, 
         iWidth,
         iHeight,
         hWnd,
-        (HMENU)1,
+        (HMENU)iButtonId,
         hInstance,
         NULL
     );
