@@ -13,17 +13,25 @@ static const int ButtonGap = 5;
 
 static const int MainWindowMargin = 10;
 
-static const int ButtonZeroId = 1000;
-static const int ButtonOneId = 1001;
-static const int ButtonTwoId = 1002;
-static const int ButtonThreeId = 1003;
-static const int ButtonFourId = 1004;
-static const int ButtonFiveId = 1005;
-static const int ButtonSixId = 1006;
-static const int ButtonSevenId = 1007;
-static const int ButtonEigthId = 1008;
-static const int ButtonNineId = 1009;
-static const int ButtonDotId = 1010;
+#define BUTTON_ZERO 1000
+#define BUTTON_ONE 1001
+#define BUTTON_TWO 1002
+#define BUTTON_THREE 1003
+#define BUTTON_FOUR 1004
+#define BUTTON_FIVE 1005
+#define BUTTON_SIX 1006
+#define BUTTON_SEVEN 1007
+#define BUTTON_EIGHT 1008
+#define BUTTON_NINE 1009
+#define BUTTON_DOT 1010
+
+typedef struct tagCalButton
+{
+    char szName[2];
+    int iId;
+} CalButton;
+
+static const CalButton CalButtons[1] = { {"7", BUTTON_SEVEN} };
 
 int STDCALL WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpCmd, int nShow)
 {
@@ -94,7 +102,7 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lParam)
             // create number 1 to 9
             int iButtonNum = 9;
             int iButton = 0;
-            int iButtonId = ButtonNineId;
+            int iButtonId = BUTTON_NINE;
             int iOffsetX, iOffsetY = MainWindowMargin;
             for (int i = 0; i < 3; i++)
             {
@@ -120,7 +128,7 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lParam)
                     "0",
                     iOffsetX, iOffsetY, 
                     ButtonWidth*2+ButtonGap, ButtonHeight,
-                    ButtonZeroId,
+                    BUTTON_ZERO,
                     ((LPCREATESTRUCT)lParam)->hInstance
             );
             
@@ -130,7 +138,7 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lParam)
                     ".", 
                     iOffsetX, iOffsetY, 
                     ButtonWidth, ButtonHeight, 
-                    ButtonDotId,
+                    BUTTON_DOT,
                     ((LPCREATESTRUCT)lParam)->hInstance
             );
             /*
@@ -191,10 +199,10 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lParam)
             if (HIWORD(wParam) == BN_CLICKED)
             {
                 int iButtonId = LOWORD(wParam);
-                if (iButtonId >= ButtonZeroId && iButtonId <= ButtonDotId)
+                if (iButtonId >= BUTTON_ZERO && iButtonId <= BUTTON_DOT)
                 {
                     char szMsg[2];
-                    sprintf(szMsg, "%d", iButtonId - ButtonZeroId);
+                    sprintf(szMsg, "%d", iButtonId - BUTTON_ZERO);
                     MessageBox(hWnd, szMsg, "Button", MB_OKCANCEL | MB_ICONINFORMATION);
                 }
                 //DestroyWindow(hWnd);
