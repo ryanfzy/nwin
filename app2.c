@@ -13,6 +13,7 @@ static const int ButtonGap = 5;
 
 static const int MainWindowMargin = 10;
 
+#define BUTTON_NONE -1
 #define BUTTON_ZERO 1000
 #define BUTTON_ONE 1001
 #define BUTTON_TWO 1002
@@ -24,14 +25,39 @@ static const int MainWindowMargin = 10;
 #define BUTTON_EIGHT 1008
 #define BUTTON_NINE 1009
 #define BUTTON_DOT 1010
+#define BUTTON_DIVIDE 1011
+#define BUTTON_MULTIPLY 1012
+#define BUTTON_MINUS 1013
+#define BUTTON_PLUS 1014
+#define BUTTON_PERCENTAGE 1015
+#define BUTTON_ONE_OVER_X 1016
+#define BUTTON_EQUAL 1017
+
+#define NUM_BUTTON_ROWS 4
+#define NUM_BUTTON_COLS 5
 
 typedef struct tagCalButton
 {
-    char szName[2];
     int iId;
+    char szName[4];
+    int iRowSpan;
+    int iColSpan;
 } CalButton;
 
-static const CalButton CalButtons[1] = { {"7", BUTTON_SEVEN} };
+static const CalButton CalButtons[NUM_BUTTON_ROWS][NUM_BUTTON_COLS] = { 
+    {
+        {BUTTON_SEVEN, "7", 1, 1}, {BUTTON_EIGHT, "8", 1, 1}, {BUTTON_NINE, "9", 1, 1}, {BUTTON_DIVIDE, "/", 1, 1}, {BUTTON_PERCENTAGE, "%", 1, 1}
+    },
+    {
+        {BUTTON_FOUR, " 4", 1, 1}, {BUTTON_FIVE, "5", 1, 1}, {BUTTON_SIX, "6", 1, 1}, {BUTTON_MULTIPLY, "*", 1, 1}, {BUTTON_ONE_OVER_X, "1/x", 1, 1}
+    },
+    {
+        {BUTTON_ONE, "1", 1, 1}, {BUTTON_TWO, "2", 1, 1}, {BUTTON_THREE, "3", 1, 1}, {BUTTON_MINUS, "-", 1, 1}, {BUTTON_EQUAL, "=", 1, 2}
+    },
+    {
+        {BUTTON_ZERO, "0", 2, 1}, {BUTTON_DOT, ".", 1, 1}, {BUTTON_NONE, "", 0, 0}, {BUTTON_PLUS, "+", 1, 1}, {BUTTON_NONE, "", 0, 0}
+    }
+};
 
 int STDCALL WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpCmd, int nShow)
 {
@@ -99,48 +125,33 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lParam)
             ReleaseDC(hWnd, hdc);
             */
 
-            // create number 1 to 9
-            int iButtonNum = 9;
-            int iButton = 0;
-            int iButtonId = BUTTON_NINE;
-            int iOffsetX, iOffsetY = MainWindowMargin;
-            for (int i = 0; i < 3; i++)
+            int iOffsetX = 0;
+            int iOffsetY = MainWindowMargin;
+            for (int iRow = 0; iRow < NUM_BUTTON_ROWS; iRow++)
             {
                 iOffsetX = MainWindowMargin;
-                for (int j = 0; j < 3; j++)
+                for (int iCol = 0; iCol < NUM_BUTTON_COLS; iCol++)
                 {
-                    char buttonName[2];
-                    sprintf(buttonName, "%d", iButtonNum--);
-                    hWndButton[iButton++] = CreateButton(hWnd,
-                            buttonName,
-                            iOffsetX, iOffsetY,
-                            ButtonWidth, ButtonHeight,
-                            iButtonId--, 
+                    CalButton sButton = CalButtons[iRow][iCol];
+                    if (sButton.iId == BUTTON_NONE)
+                        continue;
+
+                    int iButtonWidth = sButton.iRowSpan > 1 ? ButtonWidth * sButton.iRowSpan + (sButton.iRowSpan-1) * ButtonGap : ButtonWidth;
+                    int iButtonHeight = sButton.iColSpan > 1 ? ButtonHeight * sButton.iColSpan + (sButton.iColSpan-1) * ButtonGap : ButtonHeight;
+                    CreateButton(
+                            hWnd,
+                            sButton.szName,
+                            iOffsetX,
+                            iOffsetY,
+                            iButtonWidth, 
+                            iButtonHeight,
+                            sButton.iId,
                             ((LPCREATESTRUCT)lParam)->hInstance
                     );
-                    iOffsetX = iOffsetX + ButtonWidth + ButtonGap;
+                    iOffsetX = iOffsetX + iButtonWidth + ButtonGap;
                 }
                 iOffsetY = iOffsetY + ButtonHeight + ButtonGap;
             }
-
-            iOffsetX = MainWindowMargin;
-            CreateButton(hWnd,
-                    "0",
-                    iOffsetX, iOffsetY, 
-                    ButtonWidth*2+ButtonGap, ButtonHeight,
-                    BUTTON_ZERO,
-                    ((LPCREATESTRUCT)lParam)->hInstance
-            );
-            
-            iButtonId++;
-            iOffsetX = iOffsetX + ButtonWidth*2+ButtonGap + ButtonGap;
-            CreateButton(hWnd,
-                    ".", 
-                    iOffsetX, iOffsetY, 
-                    ButtonWidth, ButtonHeight, 
-                    BUTTON_DOT,
-                    ((LPCREATESTRUCT)lParam)->hInstance
-            );
             /*
             hWndButton = CreateButton(hWnd, 10, 10, ((LPCREATESTRUCT)lParam)->hInstance);
             hWndButton = CreateWindow(
