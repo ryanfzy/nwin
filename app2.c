@@ -36,6 +36,8 @@ static const int MainWindowMargin = 10;
 #define NUM_BUTTON_ROWS 4
 #define NUM_BUTTON_COLS 5
 
+static const char *szCalScreenClass = "CalScreen";
+
 typedef struct tagCalButton
 {
     int iId;
@@ -59,8 +61,47 @@ static const CalButton CalButtons[NUM_BUTTON_ROWS][NUM_BUTTON_COLS] = {
     }
 };
 
+LRESULT CALLBACK CalScreenWndProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lParam)
+{
+    HDC hdc;
+    PAINTSTRUCT ps;
+    RECT rc;
+
+    switch (nMsg)
+    {
+        case WM_CREATE:
+            return 0;
+        case WM_PAINT:
+        {
+            hdc = BeginPaint(hWnd, &ps);
+            Rectangle(hdc, ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom);
+            EndPaint(hWnd, &ps);
+            return 0;
+        }
+        default:
+            break;
+    }
+    return DefWindowProc(hWnd, nMsg, wParam, lParam);
+}
+
+static void InitWindowClasses(HINSTANCE hInst)
+{
+    WNDCLASS calScreenClass;
+    memset(&calScreenClass, 0, sizeof(WNDCLASS));
+    calScreenClass.lpszClassName = szCalScreenClass;
+    calScreenClass.style = 0;
+    calScreenClass.lpfnWndProc = CalScreenWndProc;
+    calScreenClass.hInstance = hInst;
+    calScreenClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+    calScreenClass.hCursor = LoadCursor(NULL, IDC_ARROW);
+    calScreenClass.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
+    RegisterClass(&calScreenClass);
+}
+
 int STDCALL WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpCmd, int nShow)
 {
+    InitWindowClasses(hInst);
+
     WNDCLASSEX wndClass;
     memset(&wndClass, 0, sizeof(WNDCLASSEX));
     wndClass.lpszClassName = "WinTestApp2Win";
@@ -125,8 +166,25 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lParam)
             ReleaseDC(hWnd, hdc);
             */
 
-            int iOffsetX = 0;
+            int iOffsetX = MainWindowMargin;
             int iOffsetY = MainWindowMargin;
+
+            CreateWindow(
+                    szCalScreenClass,
+                    "",
+                    WS_CHILD | WS_VISIBLE,
+                    iOffsetX,
+                    iOffsetY,
+                    ButtonWidth * 5 + ButtonGap * 4,
+                    ButtonHeight,
+                    hWnd,
+                    (HMENU)0,
+                    ((LPCREATESTRUCT)lParam)->hInstance,
+                    NULL
+            );
+
+            iOffsetY = iOffsetY + ButtonHeight + ButtonGap;
+
             for (int iRow = 0; iRow < NUM_BUTTON_ROWS; iRow++)
             {
                 iOffsetX = MainWindowMargin;
@@ -136,8 +194,8 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lParam)
                     if (sButton.iId == BUTTON_NONE)
                         continue;
 
-                    int iButtonWidth = sButton.iRowSpan > 1 ? ButtonWidth * sButton.iRowSpan + (sButton.iRowSpan-1) * ButtonGap : ButtonWidth;
-                    int iButtonHeight = sButton.iColSpan > 1 ? ButtonHeight * sButton.iColSpan + (sButton.iColSpan-1) * ButtonGap : ButtonHeight;
+                    int iButtonWidth = sButton.iRowSpan > 1 ? sButton.iRowSpan * (ButtonWidth + ButtonGap) - ButtonGap : ButtonWidth;
+                    int iButtonHeight = sButton.iColSpan > 1 ? sButton.iColSpan * (ButtonHeight + ButtonGap) - ButtonGap : ButtonHeight;
                     CreateButton(
                             hWnd,
                             sButton.szName,
@@ -152,21 +210,6 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lParam)
                 }
                 iOffsetY = iOffsetY + ButtonHeight + ButtonGap;
             }
-            /*
-            hWndButton = CreateButton(hWnd, 10, 10, ((LPCREATESTRUCT)lParam)->hInstance);
-            hWndButton = CreateWindow(
-                "BUTTON",
-                "1",
-                WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-                10, 10,
-                ButtonWidth,
-                ButtonHeight,
-                hWnd,
-                (HMENU)1,
-                ((LPCREATESTRUCT)lParam)->hInstance,
-                NULL
-            );
-            */
             return 0;
         }
 
