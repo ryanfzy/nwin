@@ -66,6 +66,10 @@ LRESULT CALLBACK CalScreenWndProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lP
     HDC hdc;
     PAINTSTRUCT ps;
     RECT rc;
+    RECT rcText1, rcText2;
+    static char szText1[128] = { '\0' };
+    static char szText2[128] = { '\0' };
+    static int iPosText2 = 0;
 
     switch (nMsg)
     {
@@ -75,8 +79,28 @@ LRESULT CALLBACK CalScreenWndProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lP
         {
             hdc = BeginPaint(hWnd, &ps);
             Rectangle(hdc, ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom);
+            rcText1.left = ps.rcPaint.left;
+            rcText1.top = ps.rcPaint.top + 5;
+            rcText1.right = ps.rcPaint.right - 5;
+            rcText1.bottom = ps.rcPaint.bottom / 2;
+            rcText2.left = ps.rcPaint.left;
+            rcText2.top = ps.rcPaint.bottom / 2 + 5;
+            rcText2.right = ps.rcPaint.right - 5;
+            rcText2.bottom = ps.rcPaint.bottom;
+            DrawText(hdc, szText1, strlen(szText1), &rcText1, DT_VCENTER | DT_RIGHT);
+            DrawText(hdc, szText2, strlen(szText2), &rcText2, DT_VCENTER | DT_RIGHT);
             EndPaint(hWnd, &ps);
             return 0;
+        }
+        case WM_COMMAND:
+        {
+            int iButton = (int)lParam;
+            if (iButton >= BUTTON_ZERO && iButton <= BUTTON_NINE)
+            {
+                sprintf(szText2 + iPosText2, "%d", iButton - BUTTON_ZERO);
+                InvalidateRect(hWnd, NULL, TRUE);
+                iPosText2++;
+            }
         }
         default:
             break;
@@ -146,7 +170,7 @@ int STDCALL WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpCmd, int nShow)
 
 LRESULT CALLBACK MainWndProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lParam)
 {
-    static HWND hWndButton[9];
+    static HWND hWndButton[9], hWndCalScreen;
     static int cx, cy;
     HDC hdc;
     PAINTSTRUCT ps;
@@ -169,7 +193,7 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lParam)
             int iOffsetX = MainWindowMargin;
             int iOffsetY = MainWindowMargin;
 
-            CreateWindow(
+            hWndCalScreen = CreateWindow(
                     szCalScreenClass,
                     "",
                     WS_CHILD | WS_VISIBLE,
@@ -258,6 +282,7 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lParam)
                     char szMsg[2];
                     sprintf(szMsg, "%d", iButtonId - BUTTON_ZERO);
                     MessageBox(hWnd, szMsg, "Button", MB_OKCANCEL | MB_ICONINFORMATION);
+                    SendMessage(hWndCalScreen, WM_COMMAND, 0, iButtonId);
                 }
                 //DestroyWindow(hWnd);
             }
