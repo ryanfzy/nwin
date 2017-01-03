@@ -77,6 +77,68 @@ static const CalButton CalButtons[NUM_BUTTON_ROWS][NUM_BUTTON_COLS] = {
     }
 };
 
+static long GetResult(Stack *ps, char *pret)
+{
+    long ret = 0;
+    if (ps->icount >0)
+    {
+        Stack s1, s2;
+        stack_init(&s1);
+        stack_init(&s2);
+
+        CalItemInfo sinfo;
+        while (ps->icount > 0)
+        {
+            stack_pop(ps, (char*)&sinfo, sizeof(CalItemInfo));
+            if (sinfo.etype == CALITEMTYPE_NUM)
+            {
+                stack_push(&s1, (char*)&sinfo, sizeof(CalItemInfo));
+            }
+            else if (sinfo.etype == CALITEMTYPE_PLUS || sinfo.etype == CALITEMTYPE_MINUS)
+            {
+                if (s2.icount > 0)
+                {
+                    CalItemInfo *psinfo = (CalItemInfo*)s2.ptop->pdata;
+                    while (psinfo != NULL && (psinfo->etype == CALITEMTYPE_MULTIPLY || psinfo->etype == CALITEMTYPE_DIVIDE))
+                    {
+                        CalItemInfo sinfo2;
+                        stack_pop(&s2, (char*)&sinfo2, sizeof(CalItemInfo));
+                        stack_push(&s1, (char*)&sinfo2, sizeof(CalItemInfo));
+                        psinfo = s2.icount > 0 ? (CalItemInfo*)s2.ptop->pdata : NULL;
+                    }
+                }
+                stack_push(&s2, (char*)&sinfo, sizeof(CalItemInfo));
+            }
+            else if (sinfo.etype == CALITEMTYPE_MULTIPLY || sinfo.etype == CALITEMTYPE_DIVIDE)
+            {
+                stack_push(&s2, (char*)&sinfo, sizeof(CalItemInfo));
+            }
+        }
+
+        while (s2.icount > 0)
+        {
+            stack_pop(&s2, (char*)&sinfo, sizeof(CalItemInfo));
+            stack_push(&s1, (char*)&sinfo, sizeof(CalItemInfo));
+        }
+
+        while (s1.icount > 0)
+        {
+            stack_pop(&s1, (char*)&sinfo, sizeof(CalItemInfo));
+            if (sinfo.etype == CALITEMTYPE_NUM)
+                sprintf(pret + strlen(pret), "%ld ", sinfo.lnum);
+            else if (sinfo.etype == CALITEMTYPE_PLUS)
+                strcat(pret, "+ ");
+            else if (sinfo.etype == CALITEMTYPE_MINUS)
+                strcat(pret, "- ");
+            else if (sinfo.etype == CALITEMTYPE_MULTIPLY)
+                strcat(pret, "* ");
+            else if (sinfo.etype == CALITEMTYPE_DIVIDE)
+                strcat(pret, "/ ");
+        }
+    }
+    return ret;
+}
+
 LRESULT CALLBACK CalScreenWndProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lParam)
 {
     HDC hdc;
@@ -93,6 +155,7 @@ LRESULT CALLBACK CalScreenWndProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lP
         case WM_CREATE:
         {
             stack_init(&s);
+            strcpy(szText2, "0");
             return 0;
         }
         case WM_PAINT:
@@ -118,10 +181,10 @@ LRESULT CALLBACK CalScreenWndProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lP
         case WM_COMMAND:
         {
             int iButton = (int)lParam;
+
             if (iButton >= BUTTON_ZERO && iButton <= BUTTON_NINE)
             {
                 sprintf(szText2 + iText2Length, "%d", iButton - BUTTON_ZERO);
-                InvalidateRect(hWnd, NULL, TRUE);
                 iText2Length++;
             }
             else if (iButton == BUTTON_PLUS || iButton == BUTTON_MINUS ||
@@ -130,6 +193,7 @@ LRESULT CALLBACK CalScreenWndProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lP
                 CalItemInfo num, oper;
                 char *ptr;
                 char szOp[2];
+
                 num.lnum = strtol(szText2, &ptr, 10);
                 num.etype = CALITEMTYPE_NUM;
                 stack_push(&s, (char*)&num, sizeof(CalItemInfo));
@@ -162,9 +226,22 @@ LRESULT CALLBACK CalScreenWndProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lP
                 strcat(szText1, szText2);
                 strcat(szText1, " ");
                 strcat(szText1, szOp);
-                szText2[0] = '\0';
+                szText2[0] = '0';
+                szText2[1] = '\0';
                 iText2Length = 0; 
             }
+            else if (iButton == BUTTON_EQUAL)
+            {
+                CalItemInfo num;
+                char *ptr;
+                num.lnum = strtol(szText2, &ptr, 10);
+                num.etype = CALITEMTYPE_NUM;
+                stack_push(&s, (char*)&num, sizeof(CalItemInfo));
+
+                szText1[0] = '\0';
+                GetResult(&s, szText1);
+            }
+            InvalidateRect(hWnd, NULL, TRUE);
         }
         default:
             break;
