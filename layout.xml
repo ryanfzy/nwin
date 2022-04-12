@@ -1,0 +1,55 @@
+<window>
+	<grid>
+		<grid.rowdefinition>
+			<rowdefintiion height="auto" />
+			<rowdefintiion height="4" />
+			<rowdefinition height="auto" />
+			<rowdefintiion height="4" />
+			<rowdefinition height="auto" />
+		<grid.rowdefinition>
+		<border grid.row="0">
+			<grid>
+				<grid.rowdefinition>
+					<rowdefinition height="auto" />
+					<rowdefinition height="3" />
+					<rowdefinition height="auto" />
+				</grid.rowdefinition>
+				<textblock grid.row="0"
+					horizontalalignment="right"
+					text="{binding text1}" />
+				<textblock grid.row="2"
+					horizontalalignment="right"
+					text="{binding text2}" />
+			<grid>
+		</border>
+		<button grid.row="2"
+			content="clear"
+			command="{binding clearcommand}" />
+		<grid grid.row="4">
+			<grid.rowdefinition>
+				<rowdefinition height="auto" />
+				<rowdefinition height="3" />
+				<rowdefinition height="auto" />
+				<rowdefinition height="3" />
+				<rowdefinition height="auto" />
+				<rowdefinition height="3" />
+				<rowdefinition height="auto" />
+			</grid.rowdefinition>
+			<grid.columndefinition>
+				<columndefinition width="auto" />
+				<columndefinition width="3" />
+				<columndefinition width="auto" />
+				<columndefinition width="3" />
+				<columndefinition width="auto" />
+				<columndefinition width="3" />
+				<columndefinition width="auto" />
+				<columndefinition width="3" />
+				<columndefinition width="auto" />
+			</grid.columndefinition>
+			<button grid.row="0"
+				grid.column="0"
+				content="7"
+				command="{binding click7command}" />
+		</grid>
+	</grid>
+</window>
