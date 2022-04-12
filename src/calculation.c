@@ -47,7 +47,7 @@ static long do_get_result(Stack *ps)
     return 0;
 }
 
-long calculate_result(Stack *ps, char *pret)
+long calculate_result(Stack *ps, wchar_t *pret)
 {
     long ret = 0;
     if (ps->icount >0)
@@ -99,15 +99,15 @@ long calculate_result(Stack *ps, char *pret)
         {
             stack_pop(&s1, (char*)&sinfo, sizeof(CalItemInfo));
             if (sinfo.etype == CALITEMTYPE_NUM)
-                sprintf(pret + strlen(pret), "%ld ", sinfo.lnum);
+                _snwprintf(pret + wcslen(pret), 128, L"%ld ", sinfo.lnum);
             else if (sinfo.etype == CALITEMTYPE_PLUS)
-                strcat(pret, "+ ");
+                wcscat(pret, L"+ ");
             else if (sinfo.etype == CALITEMTYPE_MINUS)
-                strcat(pret, "- ");
+                wcscat(pret, L"- ");
             else if (sinfo.etype == CALITEMTYPE_MULTIPLY)
-                strcat(pret, "* ");
+                wcscat(pret, L"* ");
             else if (sinfo.etype == CALITEMTYPE_DIVIDE)
-                strcat(pret, "/ ");
+                wcscat(pret, L"/ ");
         }
 
         ret = do_get_result(&s3);

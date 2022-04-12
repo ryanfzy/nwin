@@ -1,6 +1,7 @@
 #ifndef CALCULATION_H
 #define CALCULATION_H
 
+#include <wchar.h>
 #include "lib/stack.h"
 
 typedef enum
@@ -18,6 +19,6 @@ typedef struct tagCalItemInfo
     CalItemType etype;
 } CalItemInfo;
 
-long calculate_result(Stack *ps, char *pret);
+long calculate_result(Stack *ps, wchar_t *pret);
 
 #endif

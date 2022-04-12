@@ -49,6 +49,18 @@ typedef struct tagCalButton
     int iColSpan;
 } CalButton;
 
+typedef struct tagButtonInfo
+{
+    int iId;
+    char *szContent;
+    size_t iContentLength;
+    int x;
+    int y;
+    size_t iWidth;
+    size_t iHeight;
+    void (*fnClickCommand)();
+} ButtonInfo;
+
 static const CalButton CalButtons[NUM_BUTTON_ROWS][NUM_BUTTON_COLS] = { 
     {
         {BUTTON_CLEAR, "Clear", NUM_BUTTON_COLS, 1}, {BUTTON_NONE, "", 0, 0}, {BUTTON_NONE, "", 0, 0}, {BUTTON_NONE, "", 0, 0}, {BUTTON_NONE, "", 0, 0}
@@ -89,6 +101,7 @@ LRESULT CALLBACK CalScreenWndProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lP
         case WM_PAINT:
         {
             hdc = BeginPaint(hWnd, &ps);
+            //SelectObject(hdc, GetStockObject(DEFAULT_GUI_FONT));
             Rectangle(hdc, ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom);
 
             rcText1.left = ps.rcPaint.left;
@@ -342,17 +355,9 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lParam)
 
         case WM_COMMAND:
         {
-            //if (LOWORD(wParam) == 1 && HIWORD(wParam) == BN_CLICKED && (HWND)lParam == hWndButton)
             if (HIWORD(wParam) == BN_CLICKED)
             {
                 int iButtonId = LOWORD(wParam);
-                /*
-                if (iButtonId >= BUTTON_ZERO && iButtonId <= BUTTON_DOT)
-                {
-                    char szMsg[2];
-                    sprintf(szMsg, "%d", iButtonId - BUTTON_ZERO);
-                    MessageBox(hWnd, szMsg, "Button", MB_OKCANCEL | MB_ICONINFORMATION);
-                }*/
                 SendMessage(hWndCalScreen, WM_COMMAND, 0, iButtonId);
                 //DestroyWindow(hWnd);
             }

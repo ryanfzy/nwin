@@ -1,0 +1,80 @@
+LIB_OBJS = structs.o list.o dict.o dict_prvt.o dictiter.o stack.o utils.o
+FE_OBJS = feinfo.o treeviewinfo.o tviteminfo.o tbinfo.o gridinfo.o btninfo.o borderinfo.o stackpanelinfo.o
+FRMWRK_OBJS = zaml_structs.o $(FE_OBJS) evthandler.o property.o attachedproperty.o evtinfo.o dcitem.o
+CTL_OBJS = button.o textblock.o grid.o border.o febuilder.o treeview.o
+DEMO_OBJS = demo_datacontext.o demo_ui.o
+UTIL_OBJS = calculation.o
+MAINWIN_OBJS = calculator.o
+
+STD_OPTS = -Wall -std=c99 -Iinclude -I. -I..
+WIN_OPTS = $(STD_OPTS) -DUNICODE
+
+OBJECTS = $(LIB_OBJS) $(FRMWRK_OBJS) $(CTL_OBJS) $(DEMO_OBJS) $(UTIL_OBJS) $(MAINWIN_OBJS)
+
+calculator.exe : $(OBJECTS)
+	gcc -Wall -o calculator.exe $(OBJECTS) -mwindows
+dict.o : ../lib/dict.h ../lib/dict.c
+	gcc $(STD_OPTS) -c ../lib/dict.c
+dict_prvt.o : ../lib/dict_prvt.h ../lib/dict_prvt.c
+	gcc $(STD_OPTS) -c ../lib/dict_prvt.c
+dictiter.o : ../lib/dictiter.h ../lib/dictiter.c
+	gcc $(STD_OPTS) -c ../lib/dictiter.c
+evthandler.o : ../ngf/evthandler.h ../ngf/evthandler.c
+	gcc $(STD_OPTS) -c ../ngf/evthandler.c
+property.o : ../ngf/property.h ../ngf/property.c
+	gcc $(STD_OPTS) -c ../ngf/property.c
+attachedproperty.o : ../ngf/attachedproperty.h ../ngf/attachedproperty.c
+	gcc $(STD_OPTS) -c ../ngf/attachedproperty.c
+evtinfo.o : ../ngf/evtinfo.h ../ngf/evtinfo.c
+	gcc $(STD_OPTS) -c ../ngf/evtinfo.c
+dcitem.o : ../ngf/dcitem.h ../ngf/dcitem.c
+	gcc $(STD_OPTS) -c ../ngf/dcitem.c
+febuilder.o : include/febuilder.h src/febuilder.c
+	gcc $(WIN_OPTS) -c src/febuilder.c
+button.o : include/button.h src/controls/button.c
+	gcc $(WIN_OPTS) -c src/controls/button.c
+textblock.o : include/textblock.h src/controls/textblock.c
+	gcc $(WIN_OPTS) -c src/controls/textblock.c
+grid.o : include/grid.h src/layouts/grid.c
+	gcc $(WIN_OPTS) -c src/layouts/grid.c
+treeview.o : include/treeview.h src/layouts/treeview.c
+	gcc $(WIN_OPTS) -c src/layouts/treeview.c
+border.o : include/border.h src/layouts/border.c
+	gcc $(WIN_OPTS) -c src/layouts/border.c
+structs.o : ../lib/structs.h ../lib/structs.c
+	gcc $(STD_OPTS) -c ../lib/structs.c
+list.o : ../lib/list.h ../lib/list.c
+	gcc $(STD_OPTS) -c ../lib/list.c
+stack.o : ../lib/stack.c ../lib/stack.h
+	gcc $(STD_OPTS) -c ../lib/stack.c
+calculation.o : src/calculation.c include/calculation.h
+	gcc $(STD_OPTS) -c src/calculation.c
+utils.o : ../lib/utils.h ../lib/utils.c
+	gcc $(STD_OPTS) -c ../lib/utils.c
+zaml_structs.o : ../ngf/zaml_structs.h ../ngf/zaml_structs.c
+	gcc $(STD_OPTS) -c ../ngf/zaml_structs.c
+feinfo.o : ../ngf/feinfo.h ../ngf/feinfo.c
+	gcc $(STD_OPTS) -c ../ngf/feinfo.c
+treeviewinfo.o : ../ngf/treeviewinfo.h ../ngf/treeviewinfo.c
+	gcc $(STD_OPTS) -c ../ngf/treeviewinfo.c
+tviteminfo.o : ../ngf/tviteminfo.h ../ngf/tviteminfo.c
+	gcc $(STD_OPTS) -c ../ngf/tviteminfo.c
+tbinfo.o : ../ngf/tbinfo.h ../ngf/tbinfo.c
+	gcc $(STD_OPTS) -c ../ngf/tbinfo.c
+gridinfo.o : ../ngf/gridinfo.h ../ngf/gridinfo.c
+	gcc $(STD_OPTS) -c ../ngf/gridinfo.c
+btninfo.o : ../ngf/btninfo.h ../ngf/btninfo.c
+	gcc $(STD_OPTS) -c ../ngf/btninfo.c
+borderinfo.o : ../ngf/borderinfo.h ../ngf/borderinfo.c
+	gcc $(STD_OPTS) -c ../ngf/borderinfo.c
+stackpanelinfo.o : ../ngf/stackpanelinfo.h ../ngf/stackpanelinfo.c
+	gcc $(STD_OPTS) -c ../ngf/stackpanelinfo.c
+demo_datacontext.o : include/demo_datacontext.h src/demo_datacontext.c
+	gcc $(WIN_OPTS) -c src/demo_datacontext.c
+demo_ui.o : include/demo_ui.h src/demo_ui.c
+	gcc $(WIN_OPTS) -c src/demo_ui.c
+calculator.o : src/calculator.c
+	gcc $(WIN_OPTS) -c src/calculator.c
+clean:
+	del calculator.exe $(OBJECTS)
+
