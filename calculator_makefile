@@ -1,82 +1,37 @@
+VPATH = ..
 OBJDIR = obj
 
 LIB_OBJS = obj/structs.o obj/list.o obj/dict.o obj/dict_prvt.o obj/dictiter.o obj/stack.o obj/utils.o
 FE_OBJS = obj/feinfo.o obj/treeviewinfo.o obj/tviteminfo.o obj/tbinfo.o obj/gridinfo.o obj/btninfo.o obj/borderinfo.o obj/stackpanelinfo.o
 FRMWRK_OBJS = obj/zaml_structs.o $(FE_OBJS) obj/evthandler.o obj/property.o obj/attachedproperty.o obj/evtinfo.o obj/dcitem.o
-CTL_OBJS = obj/button.o obj/textblock.o obj/grid.o obj/border.o obj/febuilder.o obj/treeview.o
+CTL_OBJS = obj/button.o obj/textblock.o 
 DEMO_OBJS = obj/demo_datacontext.o obj/demo_ui.o
-UTIL_OBJS = obj/calculation.o
+UTIL_OBJS = obj/calculation.o obj/febuilder.o
 MAINWIN_OBJS = obj/calculator.o
+LAYOUT_OBJS = obj/grid.o  obj/treeview.o obj/border.o 
 
-STD_OPTS = -Wall -std=c99 -Iinclude -I. -I.. -o $@
+# $@ means the target
+# $< means the first prerequisite
+STD_OPTS = -Wall -std=c99 -Iinclude -I. -I.. -o $@ -c $<
 WIN_OPTS = $(STD_OPTS) -DUNICODE
 
-OBJECTS = $(LIB_OBJS) $(FRMWRK_OBJS) $(CTL_OBJS) $(DEMO_OBJS) $(UTIL_OBJS) $(MAINWIN_OBJS)
+OBJECTS = $(LIB_OBJS) $(FRMWRK_OBJS) $(CTL_OBJS) $(DEMO_OBJS) $(UTIL_OBJS) $(MAINWIN_OBJS) $(LAYOUT_OBJS)
 
 calculator.exe : $(OBJECTS)
 	gcc -Wall -o calculator.exe $(OBJECTS) -mwindows
-obj/dict.o : ../lib/dict.h ../lib/dict.c
-	gcc $(STD_OPTS) -c ../lib/dict.c
-obj/dict_prvt.o : ../lib/dict_prvt.h ../lib/dict_prvt.c
-	gcc $(STD_OPTS) -c ../lib/dict_prvt.c
-obj/dictiter.o : ../lib/dictiter.h ../lib/dictiter.c
-	gcc $(STD_OPTS) -c ../lib/dictiter.c
-obj/evthandler.o : ../ngf/evthandler.h ../ngf/evthandler.c
-	gcc $(STD_OPTS) -c ../ngf/evthandler.c
-obj/property.o : ../ngf/property.h ../ngf/property.c
-	gcc $(STD_OPTS) -c ../ngf/property.c
-obj/attachedproperty.o : ../ngf/attachedproperty.h ../ngf/attachedproperty.c
-	gcc $(STD_OPTS) -c ../ngf/attachedproperty.c
-obj/evtinfo.o : ../ngf/evtinfo.h ../ngf/evtinfo.c
-	gcc $(STD_OPTS) -c ../ngf/evtinfo.c
-obj/dcitem.o : ../ngf/dcitem.h ../ngf/dcitem.c
-	gcc $(STD_OPTS) -c ../ngf/dcitem.c
-obj/febuilder.o : include/febuilder.h src/febuilder.c
-	gcc $(WIN_OPTS) -c src/febuilder.c
-obj/button.o : include/button.h src/controls/button.c
-	gcc $(WIN_OPTS) -c src/controls/button.c
-obj/textblock.o : include/textblock.h src/controls/textblock.c
-	gcc $(WIN_OPTS) -c src/controls/textblock.c
-obj/grid.o : include/grid.h src/layouts/grid.c
-	gcc $(WIN_OPTS) -c src/layouts/grid.c
-obj/treeview.o : include/treeview.h src/layouts/treeview.c
-	gcc $(WIN_OPTS) -c src/layouts/treeview.c
-obj/border.o : include/border.h src/layouts/border.c
-	gcc $(WIN_OPTS) -c src/layouts/border.c
-obj/structs.o : ../lib/structs.h ../lib/structs.c
-	gcc $(STD_OPTS) -c ../lib/structs.c
-obj/list.o : ../lib/list.h ../lib/list.c
-	gcc $(STD_OPTS) -c ../lib/list.c
-obj/stack.o : ../lib/stack.c ../lib/stack.h
-	gcc $(STD_OPTS) -c ../lib/stack.c
-obj/calculation.o : src/calculation.c include/calculation.h
-	gcc $(STD_OPTS) -c src/calculation.c
-obj/utils.o : ../lib/utils.h ../lib/utils.c
-	gcc $(STD_OPTS) -c ../lib/utils.c
-obj/zaml_structs.o : ../ngf/zaml_structs.h ../ngf/zaml_structs.c
-	gcc $(STD_OPTS) -c ../ngf/zaml_structs.c
-obj/feinfo.o : ../ngf/feinfo.h ../ngf/feinfo.c
-	gcc $(STD_OPTS) -c ../ngf/feinfo.c
-obj/treeviewinfo.o : ../ngf/treeviewinfo.h ../ngf/treeviewinfo.c
-	gcc $(STD_OPTS) -c ../ngf/treeviewinfo.c
-obj/tviteminfo.o : ../ngf/tviteminfo.h ../ngf/tviteminfo.c
-	gcc $(STD_OPTS) -c ../ngf/tviteminfo.c
-obj/tbinfo.o : ../ngf/tbinfo.h ../ngf/tbinfo.c
-	gcc $(STD_OPTS) -c ../ngf/tbinfo.c
-obj/gridinfo.o : ../ngf/gridinfo.h ../ngf/gridinfo.c
-	gcc $(STD_OPTS) -c ../ngf/gridinfo.c
-obj/btninfo.o : ../ngf/btninfo.h ../ngf/btninfo.c
-	gcc $(STD_OPTS) -c ../ngf/btninfo.c
-obj/borderinfo.o : ../ngf/borderinfo.h ../ngf/borderinfo.c
-	gcc $(STD_OPTS) -c ../ngf/borderinfo.c
-obj/stackpanelinfo.o : ../ngf/stackpanelinfo.h ../ngf/stackpanelinfo.c
-	gcc $(STD_OPTS) -c ../ngf/stackpanelinfo.c
-obj/demo_datacontext.o : include/demo_datacontext.h src/demo_datacontext.c
-	gcc $(WIN_OPTS) -c src/demo_datacontext.c
-obj/demo_ui.o : include/demo_ui.h src/demo_ui.c
-	gcc $(WIN_OPTS) -c src/demo_ui.c
+# static pattern rule, % refers to the object name
+$(LIB_OBJS) : obj/%.o : lib/%.c
+	gcc $(STD_OPTS)
+$(FRMWRK_OBJS) : obj/%.o : ngf/%.c
+	gcc $(STD_OPTS)
+$(CTL_OBJS) : obj/%.o : src/controls/%.c
+	gcc $(WIN_OPTS)
+$(LAYOUT_OBJS) : obj/%.o : src/layouts/%.c
+	gcc $(WIN_OPTS)
+$(UTIL_OBJS) $(DEMO_OBJS) : obj/%.o : src/%.c
+	gcc $(STD_OPTS)
 obj/calculator.o : src/calculator.c
-	gcc $(WIN_OPTS) -c src/calculator.c
+	gcc $(WIN_OPTS)
 
 # this is an order-only prerequisite, it creates the obj folder if needed
 $(OBJECTS): | $(OBJDIR)
