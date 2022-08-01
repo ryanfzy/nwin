@@ -1,5 +1,7 @@
 VPATH = ..
+BINDIR = bin
 OBJDIR = obj
+NGFINC = include/ngf
 
 LIB_OBJS = obj/structs.o obj/list.o obj/dict.o obj/dict_prvt.o obj/dictiter.o obj/stack.o obj/utils.o
 FE_OBJS = obj/feinfo.o obj/treeviewinfo.o obj/tviteminfo.o obj/tbinfo.o obj/gridinfo.o obj/btninfo.o obj/borderinfo.o obj/stackpanelinfo.o
@@ -12,17 +14,17 @@ LAYOUT_OBJS = obj/grid.o  obj/treeview.o obj/border.o
 
 # $@ means the target
 # $< means the first prerequisite
-STD_OPTS = -Wall -std=c99 -Iinclude -I. -I.. -o $@ -c $<
+STD_OPTS = -Wall -std=c99 -Iinclude -I. -I.. -I../ngf/include -o $@ -c $<
 WIN_OPTS = $(STD_OPTS) -DUNICODE
 
 OBJECTS = $(LIB_OBJS) $(FRMWRK_OBJS) $(CTL_OBJS) $(DEMO_OBJS) $(UTIL_OBJS) $(MAINWIN_OBJS) $(LAYOUT_OBJS)
 
-calculator.exe : $(OBJECTS)
-	gcc -Wall -o calculator.exe $(OBJECTS) -mwindows
+$(BINDIR)/calculator.exe : $(OBJECTS) | $(BINDIR) 
+	gcc -Wall -o $@ $(OBJECTS) -mwindows
 # static pattern rule, % refers to the object name
 $(LIB_OBJS) : obj/%.o : lib/%.c
 	gcc $(STD_OPTS)
-$(FRMWRK_OBJS) : obj/%.o : ngf/%.c
+$(FRMWRK_OBJS) : obj/%.o : ngf/src/%.c 
 	gcc $(STD_OPTS)
 $(CTL_OBJS) : obj/%.o : src/controls/%.c
 	gcc $(WIN_OPTS)
@@ -35,8 +37,12 @@ obj/calculator.o : src/calculator.c
 
 # this is an order-only prerequisite, it creates the obj folder if needed
 $(OBJECTS): | $(OBJDIR)
-$(OBJDIR):
+$(OBJDIR): | $(NGFINC)
 	mkdir $(OBJDIR)
+$(BINDIR):
+	mkdir $(BINDIR)
+$(NGFINC):
+	cmd /c "mklink /j include\ngf ..\ngf\include"
 
 clean:
 	rm -fv calculator.exe *.o -r $(OBJDIR)
