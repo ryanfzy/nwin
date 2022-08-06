@@ -6,7 +6,7 @@
 #include "calculation.h"
 #include "ngf/zaml_structs.h"
 #include "demo_datacontext.h"
-#include "demo_ui.h"
+#include "demo_ui.g.h"
 #include "febuilder.h"
 
 LRESULT CALLBACK MainWndProc(HWND, UINT, WPARAM, LPARAM);
@@ -77,7 +77,7 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lParam)
             LPCREATESTRUCT pCreateStruct = (LPCREATESTRUCT)lParam;
             AppDataContext *pDc = appdc_create();
             //pFe = get_demo_ui(get_demo_dc());
-            pFe = get_demo_ui3(pDc);
+            pFe = get_demo_ui(pDc);
             MessageBox(NULL, L"app3", L"app3", MB_OK);
             FeSize size = fe_get_size(pFe);
             /*

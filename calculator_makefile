@@ -2,22 +2,26 @@ VPATH = ..
 BINDIR = bin
 OBJDIR = obj
 NGFINC = include/ngf
+VIEWS_DIR = src/views
+GENERATED_DIR = generated
 
 LIB_OBJS = obj/structs.o obj/list.o obj/dict.o obj/dict_prvt.o obj/dictiter.o obj/stack.o obj/utils.o
 FE_OBJS = obj/feinfo.o obj/treeviewinfo.o obj/tviteminfo.o obj/tbinfo.o obj/gridinfo.o obj/btninfo.o obj/borderinfo.o obj/stackpanelinfo.o
 FRMWRK_OBJS = obj/zaml_structs.o $(FE_OBJS) obj/evthandler.o obj/property.o obj/attachedproperty.o obj/evtinfo.o obj/dcitem.o
 CTL_OBJS = obj/button.o obj/textblock.o 
-DEMO_OBJS = obj/demo_datacontext.o obj/demo_ui.o
+DEMO_OBJS = obj/demo_datacontext.o
+GENERATED_OBJS = obj/demo_ui.o
+GENERATED_FILES = generated/demo_ui.g.c
 UTIL_OBJS = obj/calculation.o obj/febuilder.o
 MAINWIN_OBJS = obj/calculator.o
 LAYOUT_OBJS = obj/grid.o  obj/treeview.o obj/border.o 
 
 # $@ means the target
 # $< means the first prerequisite
-STD_OPTS = -Wall -std=c99 -Iinclude -I. -I.. -I../ngf/include -o $@ -c $<
+STD_OPTS = -Wall -std=c99 -Iinclude -I. -I.. -I../ngf/include -Igenerated -o $@ -c $<
 WIN_OPTS = $(STD_OPTS) -DUNICODE
 
-OBJECTS = $(LIB_OBJS) $(FRMWRK_OBJS) $(CTL_OBJS) $(DEMO_OBJS) $(UTIL_OBJS) $(MAINWIN_OBJS) $(LAYOUT_OBJS)
+OBJECTS = $(LIB_OBJS) $(FRMWRK_OBJS) $(CTL_OBJS) $(DEMO_OBJS) $(GENERATED_OBJS) $(UTIL_OBJS) $(MAINWIN_OBJS) $(LAYOUT_OBJS)
 
 $(BINDIR)/calculator.exe : $(OBJECTS) | $(BINDIR) 
 	gcc -Wall -o $@ $(OBJECTS) -mwindows
@@ -32,6 +36,10 @@ $(LAYOUT_OBJS) : obj/%.o : src/layouts/%.c
 	gcc $(WIN_OPTS)
 $(UTIL_OBJS) $(DEMO_OBJS) : obj/%.o : src/%.c
 	gcc $(STD_OPTS)
+$(GENERATED_OBJS) : obj/%.o : generated/%.g.c
+	gcc $(STD_OPTS)
+$(GENERATED_FILES) : generated/%_ui.g.c : src/views/%.layout | $(GENERATED_DIR)
+	bin/generator.exe $< $(GENERATED_DIR)
 obj/calculator.o : src/calculator.c
 	gcc $(WIN_OPTS)
 
@@ -43,6 +51,8 @@ $(BINDIR):
 	mkdir $(BINDIR)
 $(NGFINC):
 	cmd /c "mklink /j include\ngf ..\ngf\include"
+$(GENERATED_DIR):
+	mkdir $(GENERATED_DIR)
 
 clean:
 	rm -fv calculator.exe *.o -r $(OBJDIR)
